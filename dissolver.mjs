@@ -5,10 +5,10 @@ import turf from "@turf/turf";
 import * as fs from "fs";
 
 // read all geojson data
-let state = "act";
-let filename = state + "-2-clean";
+let state = "tas";
+let filename = state + "-5-clean";
 let rawdata = fs.readFileSync(
-  "inputs/territories-clean/" + filename + ".geojson"
+  "inputs/territories/" + filename + ".geojson"
 );
 let geojson = JSON.parse(rawdata);
 
@@ -16,14 +16,13 @@ let geojson = JSON.parse(rawdata);
 let postcodes = {};
 for(let i = 0; i < geojson.features.length; i++) {
   let suburbData = geojson.features[i];
-  if(suburbData.properties.postcode.length === 0) continue;
+  if(suburbData.properties.postcode.length === 0 || suburbData.properties.postcode !== "7261") continue;
 
   if (!postcodes.hasOwnProperty(suburbData.properties.postcode)) 
     postcodes[suburbData.properties.postcode] = [];
   let polygon = turf.polygon(suburbData.geometry.coordinates, 
     { 
-      postcode: suburbData.properties.postcode,
-      suburb: suburbData.properties.suburb
+      postcode: suburbData.properties.postcode
     });
   postcodes[suburbData.properties.postcode].push(polygon);
 }
@@ -31,7 +30,6 @@ for(let i = 0; i < geojson.features.length; i++) {
 // dissolve by postcode
 let postcodeAreas = [];
 for(let postcode in postcodes) {
-  if(postcode == "2602") continue
   try {
     postcodeAreas.push(turf.union(...postcodes[postcode]));
   } catch(error) {
@@ -39,6 +37,6 @@ for(let postcode in postcodes) {
   }
   
 }
-console.log(postcodeAreas.length);
+console.log(JSON.stringify(postcodeAreas));
 
 // write to file
