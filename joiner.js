@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 
 // read all geojson data
-let folder = 'territories/';
+let folder = 'inputs/territories-clean/';
 
 //joining path of directory 
 const directoryPath = path.join(__dirname, folder);
@@ -28,8 +28,9 @@ fs.readdir(directoryPath, function (err, files) {
     let geojson = JSON.parse(rawdata);
     
     all_suburbs.features = all_suburbs.features.concat(geojson.features);
-    console.log(all_suburbs.features.length);
   });
+
+  fs.writeFileSync(folder + 'australia.geojson', JSON.stringify(geojson));
 
   
 });
